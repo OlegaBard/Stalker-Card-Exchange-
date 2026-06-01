@@ -36,6 +36,8 @@ class Settings:
     channel_rules: int | None
     admin_role_id: int | None
     database_path: Path
+    card_image_base_url: str
+    card_image_version: str
 
 
 def _int_or_none(value: str | None) -> int | None:
@@ -60,4 +62,8 @@ def load_settings() -> Settings:
         channel_rules=_int_or_none(os.getenv("CHANNEL_CARD_RULES")),
         admin_role_id=_int_or_none(os.getenv("ADMIN_ROLE_ID")),
         database_path=Path(db),
+        card_image_base_url=os.getenv(
+            "CARD_IMAGE_BASE_URL", "https://s2-atb-checklist.web.app/cards"
+        ).strip().rstrip("/"),
+        card_image_version=os.getenv("CARD_IMAGE_VERSION", "2").strip(),
     )

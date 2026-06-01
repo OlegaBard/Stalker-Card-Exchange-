@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from bot.card_images import card_image_url
 from bot.config import TOTAL_CARDS
 
 # Категорії колекції S.T.A.L.K.E.R. 2 × АТБ (офіційна нумерація на картках)
@@ -31,6 +32,10 @@ class Card:
     @property
     def code(self) -> str:
         return f"#{self.id:02d}"
+
+    @property
+    def image_url(self) -> str:
+        return card_image_url(self.id)
 
     def label(self, owned: bool = False, qty: int = 0) -> str:
         mark = "✅" if owned else "❌"

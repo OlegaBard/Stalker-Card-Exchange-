@@ -113,14 +113,15 @@ async def _handle_accept(
     await db.close_trade(trade_id, "completed")
     give = get_card(give_id)
     want = get_card(want_id)
-    await interaction.followup.send(
-        embed=success_embed(
-            f"Обмін завершено!\n"
-            f"Ти отримав: **{give.code} {give.name}**\n"
-            f"Ти віддав: **{want.code} {want.name}**"
-        ),
-        ephemeral=True,
+    from bot.embeds import trade_preview_embed
+
+    done = trade_preview_embed(give, want)
+    done.title = "✅ Обмін завершено"
+    done.description = (
+        f"📥 **Отримав:** {give.code} {give.name}\n"
+        f"📤 **Віддав:** {want.code} {want.name}"
     )
+    await interaction.followup.send(embed=done, ephemeral=True)
 
     if interaction.message and interaction.message.embeds:
         closed = interaction.message.embeds[0].copy()

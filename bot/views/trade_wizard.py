@@ -8,10 +8,12 @@ from discord import ui
 
 from bot.cards import get_card
 from bot.embeds import (
+    card_art_embed,
     error_embed,
     market_trade_embed,
     success_embed,
     trade_offer_embed,
+    trade_preview_embed,
 )
 from bot.views.constants import TRADE
 from bot.views.market import build_market_view
@@ -76,10 +78,8 @@ class TradeWizardView(ui.View):
             self.add_item(self._want_select(missing))
             give = get_card(self.give_id)
             await interaction.response.edit_message(
-                content=(
-                    f"**Віддаю:** {give.code} {give.name}\n\n"
-                    "**Крок 2:** обери картку, яку **хочеш отримати**."
-                ),
+                content="**Крок 2:** обери картку, яку **хочеш отримати**.",
+                embed=card_art_embed(give, extra="\n📤 **Віддаєш цю картку**"),
                 view=self,
             )
 
@@ -139,11 +139,8 @@ class TradeWizardView(ui.View):
             self.add_item(confirm)
             self.add_item(cancel)
             await interaction.response.edit_message(
-                content=(
-                    f"**Віддаю:** {give.code} {give.name}\n"
-                    f"**Хочу отримати:** {want.code} {want.name}\n\n"
-                    "Після підтвердження бот створить оголошення на ринку."
-                ),
+                content="Після підтвердження бот створить оголошення на ринку.",
+                embed=trade_preview_embed(give, want),
                 view=self,
             )
 

@@ -10,6 +10,16 @@ def _footer() -> str:
     return "☢️ КПК · Зона · Бартер"
 
 
+def _set_card_image(embed: discord.Embed, card: Card) -> None:
+    embed.set_image(url=card.image_url)
+
+
+def _set_trade_cards(embed: discord.Embed, give: Card, want: Card) -> None:
+    """Велике зображення — те, що шукають; мініатюра — те, що віддають."""
+    embed.set_image(url=want.image_url)
+    embed.set_thumbnail(url=give.image_url)
+
+
 def main_menu_embed() -> discord.Embed:
     embed = discord.Embed(
         title="☢️ ОБМІННИК КАРТОК S.T.A.L.K.E.R. 2",
@@ -74,7 +84,8 @@ def collection_summary_embed(
             f"🟢 **Зібрано:** {collected} / {TOTAL_CARDS}\n"
             f"🟡 **Дублів:** {duplicates}\n"
             f"🔴 **Не вистачає:** {missing}\n\n"
-            f"{progress_bar(ratio)} **{int(ratio * 100)}%**"
+            f"{progress_bar(ratio)} **{int(ratio * 100)}%**\n\n"
+            "🖼 Обери номер картки в меню нижче — покаже арт."
         ),
         color=COLORS.background,
     )
@@ -86,6 +97,8 @@ def card_list_embed(title: str, lines: list[str], *, empty: str) -> discord.Embe
     body = "\n".join(lines[:48]) if lines else empty
     if len(lines) > 48:
         body += f"\n… та ще {len(lines) - 48}"
+    if lines:
+        body += "\n\n_Номер у списку — посилання на арт. Або меню «Переглянути арт»._"
     embed = discord.Embed(title=title, description=body, color=COLORS.metal_gray)
     embed.set_footer(text=_footer())
     return embed
@@ -108,6 +121,7 @@ def trade_offer_embed(
         ),
         color=COLORS.radiation_yellow,
     )
+    _set_trade_cards(embed, give, want)
     embed.set_footer(text=_footer())
     return embed
 
@@ -128,6 +142,32 @@ def market_trade_embed(
         ),
         color=COLORS.swamp_green,
     )
+    _set_trade_cards(embed, give, want)
+    embed.set_footer(text=_footer())
+    return embed
+
+
+def trade_preview_embed(give: Card, want: Card) -> discord.Embed:
+    embed = discord.Embed(
+        title="🖼 Попередній перегляд обміну",
+        description=(
+            f"📤 **Віддаєш:** {give.code} {give.name}\n"
+            f"📥 **Отримаєш:** {want.code} {want.name}"
+        ),
+        color=COLORS.background,
+    )
+    _set_trade_cards(embed, give, want)
+    embed.set_footer(text=_footer())
+    return embed
+
+
+def card_art_embed(card: Card, *, extra: str = "") -> discord.Embed:
+    embed = discord.Embed(
+        title=f"🖼 {card.code} {card.name}",
+        description=f"**Категорія:** {card.category}{extra}",
+        color=COLORS.swamp_green,
+    )
+    _set_card_image(embed, card)
     embed.set_footer(text=_footer())
     return embed
 
@@ -137,7 +177,9 @@ def super_weapon_progress_embed(
     missing_cards: list[Card],
     status: str,
 ) -> discord.Embed:
-    missing_lines = "\n".join(c.code for c in missing_cards[:12]) or "—"
+    missing_lines = "\n".join(
+        f"[{c.code}]({c.image_url})" for c in missing_cards[:12]
+    ) or "—"
     if len(missing_cards) > 12:
         missing_lines += f"\n… +{len(missing_cards) - 12}"
     embed = discord.Embed(
@@ -176,7 +218,8 @@ def rules_embed() -> discord.Embed:
             "4. **Прийняття** — інший гравець натискає «Прийняти»; бот перевіряє наявність карток і переносить їх.\n"
             "5. **Термін** — оголошення діють **24 години**.\n"
             "6. **Суперпушка** — збери всі 48 карток і отримай **SUPER WEAPON TOKEN**.\n"
-            "7. **Чесна гра** — не обманюй щодо наявності карток; за скаргами модератори можуть скасувати угоду."
+            "7. **Чесна гра** — не обманюй щодо наявності карток; за скаргами модератори можуть скасувати угоду.\n"
+            "8. **Арти** — номер картки в списку або меню відкриває зображення з колекції АТБ."
         ),
         color=COLORS.metal_gray,
     )
@@ -211,13 +254,19 @@ def card_detail_embed(card: Card, qty: int) -> discord.Embed:
         ),
         color=COLORS.background if qty else COLORS.danger_red,
     )
+    _set_card_image(embed, card)
     embed.set_footer(text=_footer())
     return embed
 
 
-def format_card_line(card_id: int, qty: int) -> str:
+def format_card_line(card_id: int, qty: int, *, with_link: bool = True) -> str:
     card = get_card(card_id)
     if not card:
         return f"#{card_id:02d} ?"
     owned = qty > 0
-    return card.label(owned=owned, qty=qty if owned else 0).replace("  ", " ")
+    mark = "✅" if owned else "❌"
+    suffix = f" x{qty}" if qty > 1 else (" x1" if qty == 1 and owned else "")
+    label = f"{card.code} {card.name}"
+    if with_link:
+        label = f"[{label}]({card.image_url})"
+    return f"{label} {mark}{suffix}"
