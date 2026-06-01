@@ -205,7 +205,10 @@ def card_detail_embed(card: Card, qty: int) -> discord.Embed:
     dup = f"\n🟡 Дублів: {qty - 1}" if qty > 1 else ""
     embed = discord.Embed(
         title=f"🔍 {card.code} {card.name}",
-        description=f"{status}\n**Кількість:** {qty}{dup}",
+        description=(
+            f"**Категорія:** {card.category}\n"
+            f"{status}\n**Кількість:** {qty}{dup}"
+        ),
         color=COLORS.background if qty else COLORS.danger_red,
     )
     embed.set_footer(text=_footer())
