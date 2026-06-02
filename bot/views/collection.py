@@ -218,9 +218,7 @@ class StashCardSelect(ui.View):
                 style=discord.ButtonStyle.secondary,
             )
 
-            async def next_page(
-                inter: discord.Interaction, btn: ui.Button
-            ) -> None:
+            async def next_page(inter: discord.Interaction) -> None:
                 await inter.response.edit_message(
                     view=StashCardSelect(bot, user_id, page + 1, mode),
                 )
@@ -233,9 +231,7 @@ class StashCardSelect(ui.View):
                 style=discord.ButtonStyle.secondary,
             )
 
-            async def prev_page(
-                inter: discord.Interaction, btn: ui.Button
-            ) -> None:
+            async def prev_page(inter: discord.Interaction) -> None:
                 await inter.response.edit_message(
                     view=StashCardSelect(bot, user_id, page - 1, mode),
                 )

@@ -61,7 +61,7 @@ class CardPickerView(ui.View):
         if self.page + 1 < total_pages:
             nxt = ui.Button(label="→ Арт", style=discord.ButtonStyle.secondary)
 
-            async def next_p(inter: discord.Interaction, _: ui.Button) -> None:
+            async def next_p(inter: discord.Interaction) -> None:
                 await inter.response.edit_message(
                     view=CardPickerView(
                         bot,
@@ -77,7 +77,7 @@ class CardPickerView(ui.View):
         if self.page > 0:
             prv = ui.Button(label="← Арт", style=discord.ButtonStyle.secondary)
 
-            async def prev_p(inter: discord.Interaction, _: ui.Button) -> None:
+            async def prev_p(inter: discord.Interaction) -> None:
                 await inter.response.edit_message(
                     view=CardPickerView(
                         bot,

@@ -120,7 +120,7 @@ class TradeWizardView(ui.View):
                 custom_id=f"{TRADE}:confirm",
             )
 
-            async def confirm_cb(inter: discord.Interaction, btn: ui.Button) -> None:
+            async def confirm_cb(inter: discord.Interaction) -> None:
                 await self._confirm_trade(inter)
 
             confirm.callback = confirm_cb
@@ -129,7 +129,7 @@ class TradeWizardView(ui.View):
                 style=discord.ButtonStyle.secondary,
             )
 
-            async def cancel_cb(inter: discord.Interaction, btn: ui.Button) -> None:
+            async def cancel_cb(inter: discord.Interaction) -> None:
                 await inter.response.edit_message(
                     content="Обмін скасовано.",
                     view=None,

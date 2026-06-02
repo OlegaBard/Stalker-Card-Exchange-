@@ -53,7 +53,7 @@ class SearchCardView(ui.View):
         if end < 48:
             nxt = ui.Button(label="→", style=discord.ButtonStyle.secondary)
 
-            async def next_p(inter: discord.Interaction, b: ui.Button) -> None:
+            async def next_p(inter: discord.Interaction) -> None:
                 await inter.response.edit_message(
                     view=SearchCardView(bot, user_id, page + 1),
                 )
@@ -63,7 +63,7 @@ class SearchCardView(ui.View):
         if page > 0:
             prv = ui.Button(label="←", style=discord.ButtonStyle.secondary)
 
-            async def prev_p(inter: discord.Interaction, b: ui.Button) -> None:
+            async def prev_p(inter: discord.Interaction) -> None:
                 await inter.response.edit_message(
                     view=SearchCardView(bot, user_id, page - 1),
                 )
