@@ -68,8 +68,12 @@ class StalkerCardBot(commands.Bot):
         if member.guild_permissions.administrator:
             return True
         role_id = self.settings.admin_role_id
-        if role_id:
-            return any(r.id == role_id for r in member.roles)
+        if role_id and any(r.id == role_id for r in member.roles):
+            return True
+        role_name = self.settings.admin_role_name
+        if role_name:
+            target = role_name.casefold()
+            return any(r.name.casefold() == target for r in member.roles)
         return False
 
 

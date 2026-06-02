@@ -35,15 +35,43 @@ class Settings:
     channel_completed: int | None
     channel_rules: int | None
     admin_role_id: int | None
+    admin_role_name: str | None
     database_path: Path
     card_image_base_url: str
     card_image_version: str
 
 
 def _int_or_none(value: str | None) -> int | None:
+    """Discord ID каналу/сервера — лише цифри."""
     if not value or not value.strip():
         return None
-    return int(value.strip())
+    raw = value.strip()
+    if not raw.isdigit():
+        return None
+    return int(raw)
+
+
+def _admin_role_from_env() -> tuple[int | None, str | None]:
+    """
+    ADMIN_ROLE_ID — цифри (ID ролі).
+    ADMIN_ROLE_NAME — назва ролі (наприклад Owner).
+    Якщо в ADMIN_ROLE_ID вказано текст — трактуємо як назву (зручно для .env).
+    """
+    role_id: int | None = None
+    role_name: str | None = None
+
+    name_raw = os.getenv("ADMIN_ROLE_NAME", "").strip()
+    if name_raw:
+        role_name = name_raw
+
+    id_raw = os.getenv("ADMIN_ROLE_ID", "").strip()
+    if id_raw:
+        if id_raw.isdigit():
+            role_id = int(id_raw)
+        elif not role_name:
+            role_name = id_raw
+
+    return role_id, role_name
 
 
 def load_settings() -> Settings:
@@ -51,6 +79,7 @@ def load_settings() -> Settings:
     if not token:
         raise RuntimeError("DISCORD_TOKEN is not set")
 
+    admin_role_id, admin_role_name = _admin_role_from_env()
     db = os.getenv("DATABASE_PATH", "data/stalker_cards.db").strip()
     return Settings(
         token=token,
@@ -60,10 +89,13 @@ def load_settings() -> Settings:
         channel_collections=_int_or_none(os.getenv("CHANNEL_CARD_COLLECTIONS")),
         channel_completed=_int_or_none(os.getenv("CHANNEL_CARD_COMPLETED")),
         channel_rules=_int_or_none(os.getenv("CHANNEL_CARD_RULES")),
-        admin_role_id=_int_or_none(os.getenv("ADMIN_ROLE_ID")),
+        admin_role_id=admin_role_id,
+        admin_role_name=admin_role_name,
         database_path=Path(db),
         card_image_base_url=os.getenv(
             "CARD_IMAGE_BASE_URL", "https://s2-atb-checklist.web.app/cards"
-        ).strip().rstrip("/"),
+        )
+        .strip()
+        .rstrip("/"),
         card_image_version=os.getenv("CARD_IMAGE_VERSION", "2").strip(),
     )
